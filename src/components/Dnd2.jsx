@@ -31,7 +31,7 @@ function Dnd2() {
   ];
   const [items, setItems] = useState(initialItems);
   const [listCounter, setListCounter] = useState(items.length);
-  // const [groupSelected, setGroupSelected] = useState("");
+  const [groupSelected, setGroupSelected] = useState("");
   const [multipleDragArray, setMultipleDragArray] = useState([]);
   const [dragData, setDragData] = useState([]);
   const [hoverItem, setHoverItem] = useState({});
@@ -39,11 +39,18 @@ function Dnd2() {
   // const [deleteSelected, setDeleteSelected] = useState("");
 
   // Handling drag data
-  const handleDragStart = (e, item) => {
+  const handleDragStart = (e, item, itemsGrouped) => {
     e.stopPropagation();
-    console.log("item", item);
-    item.selected = true;
-    setDragData([...dragData, item]);
+    if (item.group) {
+      console.log(item.group, "asd", itemsGrouped);
+      setGroupSelected(item.group);
+      setDragData(...dragData, itemsGrouped);
+    }
+    if (!item.group) {
+      console.log("yo");
+      item.selected = true;
+      setDragData([...dragData, item]);
+    }
     console.log(item);
   };
   console.log("DragData", dragData);
@@ -88,7 +95,7 @@ function Dnd2() {
       filteredArrayItems[hoveredGroupIndex].groupExpression.push(...dragData);
       setItems(filteredArrayItems);
     }
-    if (!hoverItem.group) {
+    if (!hoverItem.group && !groupSelected) {
       const filteredArrayItems = items.filter(
         (listItem) => listItem.id !== dragData[0].id
       );
@@ -96,10 +103,31 @@ function Dnd2() {
       const hoveredItemIndex = items.findIndex(
         (listItem) => listItem.id === hovereditem.id
       );
+      console.log("hoveredItemIndex", hoveredItemIndex);
       const rearrangedArray = [...filteredArrayItems];
       console.log(...dragData);
       rearrangedArray.splice(hoveredItemIndex, 0, ...dragData);
       setItems([...rearrangedArray]);
+    }
+    if (!hoverItem.group && groupSelected) {
+      const indexOfGroupSelected = items.findIndex(
+        (curr) => curr.group === groupSelected
+      );
+      console.log("indexOfGroupSelected", indexOfGroupSelected);
+
+      // const filteredSelectedGroupItems = items.filter(
+      //   (listItem) => listItem.id !== dragData[0].id
+      // );
+      // console.log("hoverItemList", filteredArrayItems);
+      // const hoveredItemIndex = items.findIndex(
+      //   (listItem) => listItem.id === hovereditem.id
+      // );
+      // console.log("hoveredItemIndex", hoveredItemIndex);
+      // const rearrangedArray = [...filteredArrayItems];
+      // console.log(...dragData);
+      // rearrangedArray.splice(hoveredItemIndex, 0, ...dragData);
+      // setItems([...rearrangedArray]);
+      setItems((prevState) => [...prevState, dragData]);
     }
     if (multipleDragArray.length) {
       const filteredArray = items.filter((item) => !item.isSelected);
@@ -110,6 +138,7 @@ function Dnd2() {
     setDragData([]);
   };
   console.log("Multiple", multipleDragArray);
+  console.log("groupSelected", groupSelected);
 
   // adding items
   // const selectGroupToAdd = (e, group) => {
@@ -138,11 +167,12 @@ function Dnd2() {
   //adding items to group
   const selectGroupToAdd = (e, item) => {
     console.log(item.group, "group");
-    item.groupExpression.push({
-      id: 10,
-      value: "drag 10",
-      selected: false,
-    });
+    // item.groupExpression.push({
+    //   id: 10,
+    //   value: "drag 10",
+    //   selected: false,
+    // });
+    setGroupSelected(item.group);
   };
   const handleMultipleSelect = (e, item) => {
     item.isSelected = e.target.checked;
@@ -173,8 +203,8 @@ function Dnd2() {
               onDragOver={(e) => handleListItemDragOver(e, item)}
               // onDragLeave={(e) => handleListItemDragLeave(e, item)}
               onDrop={(e) => handleListItemDrop(e, item)}
-              draggable="true"
-              onDragStart={(e) => handleDragStart(e, item)}
+              // draggable="true"
+              // onDragStart={(e) => handleDragStart(e, item)}
               onClick={(e) => selectGroupToAdd(e, item)}
             >
               {multipleDragArray.length > 0 && multipleDragArray[0].group && (
@@ -187,7 +217,11 @@ function Dnd2() {
                 </div>
               )}
               {item.groupExpression.map((itemsGrouped) => (
-                <div className="item">
+                <div
+                  className="item"
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, item, itemsGrouped)}
+                >
                   {item.groupExpression.id}
                   <input
                     type="checkbox"
