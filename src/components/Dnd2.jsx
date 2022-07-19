@@ -3,29 +3,27 @@ import "./Dnd.css";
 
 function Dnd2() {
   const initialItems = [
-    { id: 1, value: "drag 1", selected: false },
-    { id: 2, value: "drag 2", selected: false },
-    { id: 3, value: "drag 3", selected: false },
-    { id: 4, value: "drag 4", selected: false },
-    { id: 5, value: "drag 5", selected: false },
+    { id: 1, value: "drag", selected: false },
+    { id: 2, value: "drag", selected: false },
+    { id: 3, value: "drag", selected: false },
+    { id: 4, value: "drag", selected: false },
+    { id: 5, value: "drag", selected: false },
     {
-      id: 6,
-      group: "001",
+      group: 1,
       isSelected: false,
       groupExpression: [
-        { id: 7, value: "drag 7", selected: false },
-        { id: 8, value: "drag 8", selected: false },
-        { id: 9, value: "drag 9", selected: false },
-        { id: 10, value: "drag 10", selected: false },
+        { id: 6, value: "drag", selected: false },
+        { id: 7, value: "drag", selected: false },
+        { id: 8, value: "drag", selected: false },
+        { id: 9, value: "drag", selected: false },
       ],
     },
     {
-      id: 7,
-      group: "002",
+      group: 2,
       isSelected: false,
       groupExpression: [
-        { id: 11, value: "drag 11", selected: false },
-        { id: 12, value: "drag 12", selected: false },
+        { id: 10, value: "drag", selected: false },
+        { id: 11, value: "drag", selected: false },
       ],
     },
   ];
@@ -160,7 +158,7 @@ function Dnd2() {
   };
 
   return (
-    <div>
+    <div style={{ width: '1000px', margin: '0 auto' }}>
       <button onClick={addItems}>Add list Items</button>
       <button onClick={groupItems}>Group Items Together</button>
       {/* <button onClick={deleteItems}>Delete list Items</button> */}
@@ -187,13 +185,18 @@ function Dnd2() {
                 </div>
               )}
               {item.groupExpression.map((itemsGrouped) => (
-                <div className="item">
-                  {item.groupExpression.id}
-                  <input
-                    type="checkbox"
-                    onChange={(e) => handleMultipleSelect(e, item)}
-                  />{" "}
-                  <span>{itemsGrouped.value}</span>
+                <div className="rule-checker ">
+                  <label>
+                    <input
+                      type="checkbox"
+                      onChange={(e) => handleMultipleSelect(e, item)}
+                      className="checkeditem"
+                    />
+                    <div className="item feature_bx">
+                      <span>{itemsGrouped.id}</span>, {' '}
+                      <span>{itemsGrouped.value} </span>
+                    </div>
+                  </label>
                 </div>
               ))}
             </div>
@@ -210,30 +213,36 @@ function Dnd2() {
                   {multipleDragArray.length} selected
                 </div>
               )}
-              <div
-                className="item"
-                draggable="true"
-                onDragStart={(e) => handleDragStart(e, item)}
-                onDragEnter={(e) => handleListItemDragEnter(e, item)}
-                onDragOver={(e) => handleListItemDragOver(e, item)}
-                // onDragLeave={(e) => handleListItemDragLeave(e, item)}
-                onDrop={(e) => handleListItemDrop(e, item)}
-              >
-                {multipleDragArray.length > 0 && multipleDragArray[0].group && (
+              <div className="rule-checker ">
+                <label>
+                  <input
+                    type="checkbox"
+                    onChange={(e) => handleMultipleSelect(e, item)}
+                    className="checkeditem"
+                  />
                   <div
-                    className="selectedItemsModal"
+                    className="item feature_bx"
                     draggable="true"
-                    onDragStart={(e) => handleMultipleDrag(e, item)}
+                    onDragStart={(e) => handleDragStart(e, item)}
+                    onDragEnter={(e) => handleListItemDragEnter(e, item)}
+                    onDragOver={(e) => handleListItemDragOver(e, item)}
+                    // onDragLeave={(e) => handleListItemDragLeave(e, item)}
+                    onDrop={(e) => handleListItemDrop(e, item)}
                   >
-                    {multipleDragArray.length} selected
+                    {multipleDragArray.length > 0 && multipleDragArray[0].group && (
+                      <div
+                        className="selectedItemsModal"
+                        draggable="true"
+                        onDragStart={(e) => handleMultipleDrag(e, item)}
+                      >
+                        {multipleDragArray.length} selected
+                      </div>
+                    )}
+                    <span>{item.id}</span>, {' '}
+                    <span>{item.value}</span>
                   </div>
-                )}
-                {item.id}
-                <input
-                  type="checkbox"
-                  onChange={(e) => handleMultipleSelect(e, item)}
-                />{" "}
-                <span>{item.value}</span>
+
+                </label>
               </div>
             </>
           );
