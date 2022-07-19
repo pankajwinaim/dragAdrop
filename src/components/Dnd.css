@@ -73,4 +73,10 @@
   padding: 5px;
   justify-content: center;
   align-items: center;
-}/*# sourceMappingURL=Dnd.css.map */
+} /*# sourceMappingURL=Dnd.css.map */
+.groupContainer {
+  border: 2px dashed black;
+  margin-top: 10px;
+  width: 90%;
+  margin: 10px auto;
+}
