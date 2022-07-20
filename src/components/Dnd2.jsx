@@ -1,22 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./Dnd.css";
+import SelectCheckbox from "./SelectCheckbox";
 
 function Dnd2() {
   const initialItems = [
-    { id: 1, value: "drag 1", selected: false },
-    { id: 2, value: "drag 2", selected: false },
-    { id: 3, value: "drag 3", selected: false },
-    { id: 4, value: "drag 4", selected: false },
-    { id: 5, value: "drag 5", selected: false },
+    { id: 1, value: "drag 1", isSelected: false },
+    { id: 2, value: "drag 2", isSelected: false },
+    { id: 3, value: "drag 3", isSelected: false },
+    { id: 4, value: "drag 4", isSelected: false },
+    { id: 5, value: "drag 5", isSelected: false },
     {
       id: 6,
       group: "001",
       isSelected: false,
       groupExpression: [
-        { id: 7, value: "drag 7", selected: false },
-        { id: 8, value: "drag 8", selected: false },
-        { id: 9, value: "drag 9", selected: false },
-        { id: 10, value: "drag 10", selected: false },
+        { id: 7, value: "drag 7", isSelected: false },
+        { id: 8, value: "drag 8", isSelected: false },
+        { id: 9, value: "drag 9", isSelected: false },
+        { id: 10, value: "drag 10", isSelected: false },
       ],
     },
     // {
@@ -36,6 +37,8 @@ function Dnd2() {
   const [dragData, setDragData] = useState([]);
   const [hoverItem, setHoverItem] = useState({});
   const [totalListCount, setTotalListCount] = useState(0);
+  const checkboxRef = useRef();
+  console.log(checkboxRef?.current?.checked, "checkboxRef");
   console.log("wholeData", items);
   // const [deleteSelected, setDeleteSelected] = useState("");
 
@@ -155,6 +158,7 @@ function Dnd2() {
         setItems([...rearrangedArray]);
       }
       setMultipleDragArray([]);
+      // checkboxRef.current.checked = false;
     }
 
     setDragData([]);
@@ -193,9 +197,13 @@ function Dnd2() {
   };
   const handleMultipleSelect = (e, item) => {
     item.isSelected = e.target.checked;
-    const selectedArray = items.filter((listItem) => listItem.id === item.id);
-    setMultipleDragArray((prevState) => [...prevState, ...selectedArray]);
+    const selectedArray = items.filter(
+      (listItem) => listItem.isSelected === true
+    );
+    console.log("selectedArray", item, items, selectedArray);
+    setMultipleDragArray((prevState) => [...selectedArray]);
   };
+  console.log(multipleDragArray, "multiple");
   //grouping Items
   const groupItems = () => {
     const selectedArray = items.filter((listItem) => listItem.isSelected);
@@ -249,6 +257,7 @@ function Dnd2() {
                   <input
                     type="checkbox"
                     onChange={(e) => handleMultipleSelect(e, item)}
+                    // ref={checkboxRef}
                   />
                   <span>{itemsGrouped.value}</span>
                 </div>
@@ -277,20 +286,13 @@ function Dnd2() {
                 onDragEnd={(e) => setDragData([])}
                 onDrop={(e) => handleListItemDrop(e, item)}
               >
-                {multipleDragArray.length > 0 && multipleDragArray[0].group && (
-                  <span
-                    className="selectedItemsModal"
-                    draggable="true"
-                    onDragStart={(e) => handleMultipleDrag(e, item)}
-                  >
-                    {listCounter} selected
-                  </span>
-                )}
                 {idx + 1}
                 <input
                   type="checkbox"
                   onChange={(e) => handleMultipleSelect(e, item)}
-                />{" "}
+                  ref={checkboxRef}
+                />
+                {/* <SelectCheckbox selectedItem={item} dataList={items} /> */}
                 <span>{item.value}</span>
               </div>
             </>
