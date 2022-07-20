@@ -82,17 +82,17 @@ function Dnd2() {
   //list item handle
   const handleListItemDragEnter = (e, item) => {
     // e.preventPropagation();
-    console.log("enter", dragData, item);
+    // console.log("enter", dragData, item);
     setHoverItem(item);
   };
   const handleListItemDragOver = (e, item) => {
     e.preventDefault();
+    console.log("enter", dragData, item);
   };
   const handleListItemDrop = (e, hovereditem) => {
     console.log("hoverItem", dragData, hoverItem);
     //for group
     if (hoverItem.group) {
-      console.log("hoveringongroup");
       const filteredArrayItems = items.filter(
         (listItem) => listItem.id !== dragData[0].id
       );
@@ -137,8 +137,23 @@ function Dnd2() {
       setGroupSelected(null);
     }
     if (multipleDragArray.length) {
+      if (hovereditem.group) console.log("hello");
       const filteredArray = items.filter((item) => !item.isSelected);
       setItems(filteredArray);
+      if (!hovereditem.group) {
+        const filteredArrayItems = items.filter(
+          (listItem) => listItem.id !== dragData[0].id
+        );
+        console.log("hoverItemList", filteredArrayItems);
+        const hoveredItemIndex = items.findIndex(
+          (listItem) => listItem.id === hovereditem.id
+        );
+        console.log("hoveredItemIndex", hoveredItemIndex);
+        const rearrangedArray = [...filteredArrayItems];
+        console.log(...dragData);
+        rearrangedArray.splice(hoveredItemIndex, 0, ...dragData);
+        setItems([...rearrangedArray]);
+      }
       setMultipleDragArray([]);
     }
 
@@ -222,6 +237,11 @@ function Dnd2() {
               {item.groupExpression.map((itemsGrouped, indexInGroup) => (
                 <div
                   className="item"
+                  onDragEnter={(e) => handleListItemDragEnter(e, itemsGrouped)}
+                  onDragOver={(e) => handleListItemDragOver(e, itemsGrouped)}
+                  // onDragLeave={(e) => handleListItemDragLeave(e, item)}
+                  onDragEnd={(e) => setDragData([])}
+                  onDrop={(e) => handleListItemDrop(e, itemsGrouped)}
                   draggable
                   onDragStart={(e) => handleDragStart(e, item, itemsGrouped)}
                 >
@@ -258,13 +278,13 @@ function Dnd2() {
                 onDrop={(e) => handleListItemDrop(e, item)}
               >
                 {multipleDragArray.length > 0 && multipleDragArray[0].group && (
-                  <div
+                  <span
                     className="selectedItemsModal"
                     draggable="true"
                     onDragStart={(e) => handleMultipleDrag(e, item)}
                   >
                     {listCounter} selected
-                  </div>
+                  </span>
                 )}
                 {idx + 1}
                 <input
