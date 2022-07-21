@@ -4,20 +4,20 @@ import SelectCheckbox from "./SelectCheckbox";
 
 function Dnd2() {
   const initialItems = [
-    { id: 1, value: "drag 1", selected: false },
-    { id: 2, value: "drag 2", selected: false },
-    { id: 3, value: "drag 3", selected: false },
-    { id: 4, value: "drag 4", selected: false },
-    { id: 5, value: "drag 5", selected: false },
+    { id: 1, value: "drag 1", isSelected: false },
+    { id: 2, value: "drag 2", isSelected: false },
+    { id: 3, value: "drag 3", isSelected: false },
+    { id: 4, value: "drag 4", isSelected: false },
+    { id: 5, value: "drag 5", isSelected: false },
     {
       id: 6,
       group: "001",
       isSelected: false,
       groupExpression: [
-        { id: 7, value: "drag 7", selected: false },
-        { id: 8, value: "drag 8", selected: false },
-        { id: 9, value: "drag 9", selected: false },
-        { id: 10, value: "drag 10", selected: false },
+        { id: 7, value: "drag 7", isSelected: false },
+        { id: 8, value: "drag 8", isSelected: false },
+        { id: 9, value: "drag 9", isSelected: false },
+        { id: 10, value: "drag 10", isSelected: false },
       ],
     },
     // {
@@ -32,6 +32,7 @@ function Dnd2() {
   ];
   const [items, setItems] = useState(initialItems);
   const [listCounter, setListCounter] = useState(items.length);
+  const [counter, setCounter] = useState(0);
   const [groupSelected, setGroupSelected] = useState("");
   const [multipleDragArray, setMultipleDragArray] = useState([]);
   const [dragData, setDragData] = useState([]);
@@ -129,28 +130,30 @@ function Dnd2() {
       setItems(filteredArrayItems);
     }
     if (hoverItem.group && groupSelected) {
-      const hoveredGroupIndex = items.findIndex(
-        (item) => item.id === hoverItem.id
-      );
-      console.log("abc", hoverItem, hoveredGroupIndex);
-      const filteredArrayItems = items.filter(
-        (listItem) => listItem.id !== hoverItem.id
-      );
-      console.log("abc", hoverItem.groupExpression);
-      // const filteredGroupArrayItems = items.filter(
-      //   (listItem) => listItem.id !== dragData[0].id
-      // );
+      const filteredArrayItems = items;
+
       console.log("filteredArrayItems", hoverItem);
-      // const hoveredGroupIndex = filteredArrayItems.findIndex(
-      //   (item) => item.id === hovereditem.id
-      // );
+      const hoveredGroupIndex = filteredArrayItems.findIndex(
+        (item) => item.id === hovereditem.id
+      );
 
       console.log("hoveredGroupIndex", hoveredGroupIndex);
       const hoveredGroupItemIndex = hoverItem.groupExpression?.findIndex(
         (item) => item.id === hoverGroupItem.id
       );
-
-      console.log("hoveritem", hoveredGroupItemIndex);
+      const dragDataIndex = items[hoveredGroupIndex].groupExpression?.findIndex(
+        (item) => item.id === dragData[0].id
+      );
+      console.log(
+        "hoveritem",
+        hoveredGroupItemIndex,
+        dragData,
+        filteredArrayItems[hoveredGroupIndex].groupExpression
+      );
+      filteredArrayItems[hoveredGroupIndex].groupExpression.splice(
+        dragDataIndex,
+        1
+      );
       filteredArrayItems[hoveredGroupIndex].groupExpression.splice(
         hoveredGroupItemIndex,
         0,
@@ -223,19 +226,25 @@ function Dnd2() {
   console.log("groupSelected", groupSelected);
   const addItems = (e) => {
     e.preventDefault();
-    setListCounter((prevState) => prevState + 1);
-    const dummyArray = items;
-    dummyArray.splice(0, 0, {
-      id: listCounter + 1,
-      value: `drag ${listCounter + 1}`,
-    });
-    setItems((prevState) => [
-      ...prevState,
-      {
+    if (!groupSelected) {
+      setListCounter((prevState) => prevState + 1);
+      const dummyArray = items;
+      dummyArray.splice(-1, 0, {
         id: listCounter + 1,
-        value: `drag ${listCounter + 1}`,
-      },
-    ]);
+        value: `Added Item ${listCounter + 1}`,
+      });
+      setItems((prevState) => [...dummyArray]);
+    }
+    if (groupSelected) {
+    }
+
+    // setItems((prevState) => [
+    //   ...prevState,
+    //   {
+    //     id: listCounter + 1,
+    //     value: `drag ${listCounter + 1}`,
+    //   },
+    // ]);
   };
   //handling multiple drag
   console.log("selected", multipleDragArray);
@@ -255,14 +264,21 @@ function Dnd2() {
     // });
     setGroupSelected(item.group);
   };
-  const handleMultipleSelect = (e, item) => {
-    item.isSelected = e.target.checked;
-    const selectedArray = items.filter(
-      (listItem) => listItem.isSelected === true
-    );
-    console.log("selectedArray", item, items, selectedArray);
-    setMultipleDragArray((prevState) => [...selectedArray]);
+  const handleMultipleSelect = (e, item, itemsGrouped) => {
+    e.stopPropagation();
+    if (!item.group) {
+      item.isSelected = e.target.checked;
+      const selectedArray = items.filter(
+        (listItem) => listItem.isSelected === true
+      );
+      console.log("selectedArray", item, items, selectedArray);
+      setMultipleDragArray((prevState) => [...selectedArray]);
+    }
+    if (item.group) {
+      console.log(groupSelected, "asd");
+    }
   };
+  console.log(groupSelected, "asd");
   console.log(multipleDragArray, "multiple");
   //grouping Items
   const groupItems = () => {
@@ -316,7 +332,9 @@ function Dnd2() {
                   {idx + 1 + indexInGroup}
                   <input
                     type="checkbox"
-                    onClick={(e) => handleMultipleSelect(e, item)}
+                    onClick={(e) =>
+                      handleMultipleSelect(e, items, itemsGrouped)
+                    }
                     // ref={checkboxRef}
                   />
                   <span>{itemsGrouped.value}</span>
@@ -345,9 +363,6 @@ function Dnd2() {
                 // onDragLeave={(e) => handleListItemDragLeave(e, item)}
                 onDragEnd={(e) => {
                   setDragData([]);
-                  document
-                    .querySelectorAll("input[type=checkbox]")
-                    .forEach((el) => (el.checked = false));
                 }}
                 onDrop={(e) => handleListItemDrop(e, item)}
               >
